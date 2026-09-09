@@ -4,22 +4,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Press+Start+2P&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Oriya:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#050810;
-    --bg-raised:#0c1420;
-    --bg-raised-2:#111c2b;
-    --border:#1d2e40;
-    --border-soft:#142130;
-    --text:#eef4fb;
-    --text-dim:#8ba0b8;
-    --text-faint:#4c5c70;
-    --accent:#22d3ee;
-    --accent-strong:#67e8f9;
-    --accent-soft:rgba(34,211,238,0.13);
-    --accent-soft-2:rgba(34,211,238,0.34);
-    --accent-2:#7c6ff0;
-    --on-accent:#03181e;
-    --up:#34d399;
-    --down:#f0605a;
+    --bg:#f4f6fd;
+    --bg-raised:#ffffff;
+    --bg-raised-2:#edf1fb;
+    --border:#d9e0f5;
+    --border-soft:#e6eaf8;
+    --text:#161a2e;
+    --text-dim:#535d7d;
+    --text-faint:#8891ac;
+    --accent:#4f46e5;
+    --accent-strong:#3a30c9;
+    --accent-soft:rgba(79,70,229,0.10);
+    --accent-soft-2:rgba(79,70,229,0.32);
+    --accent-2:#06b6d4;
+    --section-b:#e6ecfb;
+    --on-accent:#ffffff;
+    --up:#16a34a;
+    --down:#e11d48;
     --radius:12px;
     --radius-sm:7px;
     --mono:'Fragment Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -34,7 +35,12 @@
 
   body{
     margin:0;
-    background:var(--bg);
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(880px 560px at 8% -6%, rgba(79,70,229,0.13), transparent 60%),
+      radial-gradient(760px 520px at 96% 8%, rgba(6,182,212,0.12), transparent 60%),
+      radial-gradient(900px 640px at 50% 100%, rgba(236,72,153,0.08), transparent 60%);
+    background-attachment:fixed;
     color:var(--text);
     font-family:var(--sans);
     font-size:16px;
@@ -45,6 +51,26 @@
   img{max-width:100%;}
 
   ::selection{ background:var(--accent-soft-2); color:var(--text); }
+
+  /* ---------- CUSTOM CURSOR ---------- */
+  /* A restyled default arrow (indigo, white outline for contrast on either
+     section tone) — a static cursor swap, no tracking element or hover
+     animation. Interactive elements keep their normal pointer/hand cursor
+     via the existing `cursor:pointer` rules below, untouched. The `auto`
+     fallback covers any browser that can't load the custom image. */
+  html{
+    cursor:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 2 L3 20.5 L8 15.8 L11.3 22 L14.7 20.4 L11.4 14.2 L19.3 14.2 Z' fill='%234f46e5' stroke='white' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto;
+  }
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity .7s cubic-bezier(.16,.84,.44,1), transform .7s cubic-bezier(.16,.84,.44,1);
+    transition-delay:var(--reveal-delay, 0ms);
+    will-change:opacity, transform;
+  }
+  .reveal.is-visible{ opacity:1; transform:translateY(0); }
 
   a{ color:inherit; text-decoration:none; }
 
@@ -74,7 +100,7 @@
   /* ---------- NAV ---------- */
   header.site-nav{
     position:sticky; top:0; z-index:50;
-    background:rgba(16,19,26,0.82);
+    background:rgba(255,255,255,0.72);
     backdrop-filter:blur(10px) saturate(120%);
     border-bottom:1px solid var(--border-soft);
   }
@@ -147,6 +173,8 @@
   /* ---------- SECTION SHELL ---------- */
   section{ padding:74px 0; border-top:1px solid var(--border-soft); }
   section#about{ border-top:none; }
+  section#about, section#projects, section#education, section#assistant{ background:var(--bg); }
+  section#experience, section#skills, section#honors, section#contact{ background:var(--section-b); }
   .section-head{ margin-bottom:38px; max-width:640px; }
   .section-head h2{ font-size:clamp(26px,3.4vw,34px); margin-top:14px; color:var(--text); }
   .section-head .desc{ margin-top:12px; color:var(--text-dim); font-size:15.5px; line-height:1.7; }
@@ -310,15 +338,13 @@
   }
   .stack-rows{ border-top:1px solid var(--border); }
   .stack-grid{
-    overflow-x:auto;
-    overflow-y:hidden;
-    -webkit-overflow-scrolling:touch;
+    /* Pure auto-scrolling marquee — overflow:hidden (not auto) so there is
+       no real scroll position for anything to fight with the transform
+       animation; the strip never stops on its own. */
+    overflow:hidden;
     border-bottom:1px solid var(--border);
     width:100%;
-    scrollbar-width:none;
-    -ms-overflow-style:none;
   }
-  .stack-grid::-webkit-scrollbar{ display:none; width:0; height:0; }
   .stack-track{
     display:flex;
     width:max-content;
@@ -327,8 +353,7 @@
     will-change:transform;
   }
   .stack-track.reverse{ animation-name:stack-scroll-reverse; }
-  .stack-grid:hover .stack-track,
-  .stack-grid.paused .stack-track{ animation-play-state:paused; }
+  .stack-grid:hover .stack-track{ animation-play-state:paused; }
   @keyframes stack-scroll{
     from{ transform:translateX(0); }
     to{ transform:translateX(-50%); }
@@ -371,7 +396,9 @@
   .honors-date{ font-family:var(--data); font-size:11px; color:var(--text-faint); white-space:nowrap; }
   .honors-sub{ font-family:var(--data); font-size:12px; color:var(--accent); margin-top:4px; }
 
-  /* ---------- ASK AI ---------- */
+  /* ---------- ASK AI (ArjitGPT) ---------- */
+  /* Back to the site's own light palette (--bg-raised/--accent/etc.) rather
+     than a separate dark theme — only the name changed to ArjitGPT. */
   .chat-panel{
     background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius);
     padding:20px; display:flex; flex-direction:column; gap:14px;
@@ -414,17 +441,16 @@
   .chat-input-row input:focus{ outline:none; border-color:var(--accent-soft-2); }
   .chat-input-row button{ flex-shrink:0; }
   .chat-input-row button:disabled{ opacity:0.55; cursor:default; }
-  .chat-note{ font-family:var(--data); font-size:11.5px; color:var(--text-faint); min-height:14px; }
 
   /* ---------- DOCK ---------- */
   .dock{
     position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
     z-index:60; display:flex; align-items:center; gap:6px;
     padding:7px; border-radius:999px;
-    background:rgba(23,27,36,0.86);
+    background:rgba(255,255,255,0.78);
     border:1px solid var(--border);
     backdrop-filter:blur(14px) saturate(140%);
-    box-shadow:0 14px 34px rgba(0,0,0,0.4);
+    box-shadow:0 14px 34px rgba(23,27,60,0.16);
   }
   .dock-btn{
     width:38px; height:38px; border-radius:50%; flex-shrink:0;
@@ -577,7 +603,7 @@
   <section id="about">
     <div class="wrap">
       <div class="about-grid">
-        <div class="about-bio">
+        <div class="about-bio reveal">
           <span class="eyebrow">About</span>
           <h2 style="margin-top:14px;font-size:clamp(24px,3.2vw,32px);">Hi, I'm Arjit.</h2>
           <div class="about-photos">
@@ -634,14 +660,14 @@
 
   <section id="experience">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow">Experience</span>
         <h2>Where I've worked.</h2>
         <p class="desc">One line each — expand a card for what I actually did.</p>
       </div>
       <div class="xp-list" id="xpList">
 
-        <div class="xp-item" data-open="true">
+        <div class="xp-item reveal" style="--reveal-delay:0ms;" data-open="true">
           <button class="xp-head" aria-expanded="true">
             <span class="xp-org">
               <span class="name">Springer Capital (Glynac.ai)</span>
@@ -666,7 +692,7 @@
           </div>
         </div>
 
-        <div class="xp-item" data-open="false">
+        <div class="xp-item reveal" style="--reveal-delay:90ms;" data-open="false">
           <button class="xp-head" aria-expanded="false">
             <span class="xp-org">
               <span class="name">The Pennsylvania State University</span>
@@ -691,7 +717,7 @@
           </div>
         </div>
 
-        <div class="xp-item" data-open="false">
+        <div class="xp-item reveal" style="--reveal-delay:180ms;" data-open="false">
           <button class="xp-head" aria-expanded="false">
             <span class="xp-org">
               <span class="name">Computer Science Fundamentals</span>
@@ -722,27 +748,27 @@
 
   <section id="projects">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow">Projects</span>
         <h2>Things I've built.</h2>
         <p class="desc">Six projects spanning internship work, an AI/ML bootcamp, a national competition, and things I built just to understand them better.</p>
       </div>
       <div class="proj-grid">
 
-        <div class="proj-card">
+        <div class="proj-card reveal" style="--reveal-delay:0ms;">
           <div class="proj-media">
             <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
               <line x1="8" y1="52" x2="8" y2="10" stroke="#1d2e40" stroke-width="1.2"/>
               <line x1="8" y1="52" x2="57" y2="52" stroke="#1d2e40" stroke-width="1.2"/>
               <line x1="16" y1="32" x2="16" y2="44" stroke="#0b6d84" stroke-width="2"/>
               <rect x="13" y="35" width="6" height="6" fill="#0b6d84"/>
-              <line x1="27" y1="24" x2="27" y2="40" stroke="#22d3ee" stroke-width="2"/>
-              <rect x="24" y="27" width="6" height="8" fill="#22d3ee"/>
+              <line x1="27" y1="24" x2="27" y2="40" stroke="#4f46e5" stroke-width="2"/>
+              <rect x="24" y="27" width="6" height="8" fill="#4f46e5"/>
               <line x1="38" y1="18" x2="38" y2="36" stroke="#0b6d84" stroke-width="2"/>
               <rect x="35" y="21" width="6" height="7" fill="#0b6d84"/>
-              <line x1="49" y1="13" x2="49" y2="30" stroke="#67e8f9" stroke-width="2"/>
-              <rect x="46" y="15" width="6" height="6" fill="#67e8f9"/>
-              <path d="M12 46 L23 36 L34 27 L45 20 L54 13" stroke="#67e8f9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+              <line x1="49" y1="13" x2="49" y2="30" stroke="#818cf8" stroke-width="2"/>
+              <rect x="46" y="15" width="6" height="6" fill="#818cf8"/>
+              <path d="M12 46 L23 36 L34 27 L45 20 L54 13" stroke="#818cf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
             </svg>
           </div>
           <div class="proj-body">
@@ -763,15 +789,15 @@
           </div>
         </div>
 
-        <div class="proj-card">
+        <div class="proj-card reveal" style="--reveal-delay:70ms;">
           <div class="proj-media">
             <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11 14h34a6 6 0 0 1 6 6v15a6 6 0 0 1-6 6H29l-9 9v-9h-9a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6z" stroke="#22d3ee" stroke-width="2"/>
+              <path d="M11 14h34a6 6 0 0 1 6 6v15a6 6 0 0 1-6 6H29l-9 9v-9h-9a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6z" stroke="#4f46e5" stroke-width="2"/>
               <rect x="16" y="30" width="4" height="8" rx="1" fill="#0b6d84"/>
-              <rect x="23" y="25" width="4" height="13" rx="1" fill="#22d3ee"/>
-              <rect x="30" y="21" width="4" height="17" rx="1" fill="#67e8f9"/>
-              <rect x="37" y="27" width="4" height="11" rx="1" fill="#22d3ee"/>
-              <circle cx="30" cy="18" r="1.6" fill="#67e8f9"/>
+              <rect x="23" y="25" width="4" height="13" rx="1" fill="#4f46e5"/>
+              <rect x="30" y="21" width="4" height="17" rx="1" fill="#818cf8"/>
+              <rect x="37" y="27" width="4" height="11" rx="1" fill="#4f46e5"/>
+              <circle cx="30" cy="18" r="1.6" fill="#818cf8"/>
             </svg>
           </div>
           <div class="proj-body">
@@ -791,7 +817,7 @@
           </div>
         </div>
 
-        <div class="proj-card">
+        <div class="proj-card reveal" style="--reveal-delay:140ms;">
           <div class="proj-media">
             <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g stroke="#0b6d84" stroke-width="0.8" opacity="0.75">
@@ -799,12 +825,12 @@
                 <line x1="32" y1="16" x2="14" y2="48"/><line x1="32" y1="16" x2="32" y2="48"/><line x1="32" y1="16" x2="50" y2="48"/>
                 <line x1="50" y1="16" x2="14" y2="48"/><line x1="50" y1="16" x2="32" y2="48"/><line x1="50" y1="16" x2="50" y2="48"/>
               </g>
-              <circle cx="14" cy="16" r="3.4" fill="#22d3ee"/>
-              <circle cx="32" cy="16" r="3.4" fill="#22d3ee"/>
-              <circle cx="50" cy="16" r="3.4" fill="#22d3ee"/>
-              <circle cx="14" cy="48" r="3.4" fill="#67e8f9"/>
-              <circle cx="32" cy="48" r="3.4" fill="#67e8f9"/>
-              <circle cx="50" cy="48" r="3.4" fill="#67e8f9"/>
+              <circle cx="14" cy="16" r="3.4" fill="#4f46e5"/>
+              <circle cx="32" cy="16" r="3.4" fill="#4f46e5"/>
+              <circle cx="50" cy="16" r="3.4" fill="#4f46e5"/>
+              <circle cx="14" cy="48" r="3.4" fill="#818cf8"/>
+              <circle cx="32" cy="48" r="3.4" fill="#818cf8"/>
+              <circle cx="50" cy="48" r="3.4" fill="#818cf8"/>
             </svg>
           </div>
           <div class="proj-body">
@@ -825,18 +851,18 @@
           </div>
         </div>
 
-        <div class="proj-card">
+        <div class="proj-card reveal" style="--reveal-delay:0ms;">
           <div class="proj-media">
             <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="7" y="10" width="18" height="24" rx="2" stroke="#0b6d84" stroke-width="1.8"/>
-              <rect x="12" y="6" width="18" height="24" rx="2" stroke="#22d3ee" stroke-width="1.8"/>
-              <line x1="16" y1="13" x2="26" y2="13" stroke="#22d3ee" stroke-width="1.3"/>
-              <line x1="16" y1="18" x2="26" y2="18" stroke="#22d3ee" stroke-width="1.3"/>
-              <line x1="16" y1="23" x2="23" y2="23" stroke="#22d3ee" stroke-width="1.3"/>
-              <path d="M33 20h23a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H41l-7 7v-7h-1a4 4 0 0 1-4-4V24a4 4 0 0 1 4-4z" stroke="#67e8f9" stroke-width="2"/>
-              <circle cx="42" cy="30" r="1.6" fill="#67e8f9"/>
-              <circle cx="49" cy="30" r="1.6" fill="#67e8f9"/>
-              <circle cx="56" cy="30" r="1.6" fill="#67e8f9"/>
+              <rect x="12" y="6" width="18" height="24" rx="2" stroke="#4f46e5" stroke-width="1.8"/>
+              <line x1="16" y1="13" x2="26" y2="13" stroke="#4f46e5" stroke-width="1.3"/>
+              <line x1="16" y1="18" x2="26" y2="18" stroke="#4f46e5" stroke-width="1.3"/>
+              <line x1="16" y1="23" x2="23" y2="23" stroke="#4f46e5" stroke-width="1.3"/>
+              <path d="M33 20h23a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H41l-7 7v-7h-1a4 4 0 0 1-4-4V24a4 4 0 0 1 4-4z" stroke="#818cf8" stroke-width="2"/>
+              <circle cx="42" cy="30" r="1.6" fill="#818cf8"/>
+              <circle cx="49" cy="30" r="1.6" fill="#818cf8"/>
+              <circle cx="56" cy="30" r="1.6" fill="#818cf8"/>
             </svg>
           </div>
           <div class="proj-body">
@@ -857,9 +883,9 @@
           </div>
         </div>
 
-        <div class="proj-card">
+        <div class="proj-card reveal" style="--reveal-delay:70ms;">
           <div class="proj-media">
-            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="7" width="6" height="6" fill="#67e8f9"/><rect x="18" y="7" width="6" height="6" fill="#67e8f9"/><rect x="25" y="7" width="6" height="6" fill="#67e8f9"/><rect x="32" y="7" width="6" height="6" fill="#67e8f9"/><rect x="39" y="7" width="6" height="6" fill="#67e8f9"/><rect x="46" y="7" width="6" height="6" fill="#67e8f9"/><rect x="11" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="32" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="14" width="6" height="6" fill="#22d3ee"/><rect x="11" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="32" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="21" width="6" height="6" fill="#22d3ee"/><rect x="46" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="11" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="32" y="28" width="6" height="6" fill="#22d3ee"/><rect x="39" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="11" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="35" width="6" height="6" fill="#22d3ee"/><rect x="32" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="11" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="42" width="6" height="6" fill="#22d3ee"/><rect x="32" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="11" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="49" width="6" height="6" fill="#22d3ee"/><rect x="32" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/></svg>
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="7" width="6" height="6" fill="#818cf8"/><rect x="18" y="7" width="6" height="6" fill="#818cf8"/><rect x="25" y="7" width="6" height="6" fill="#818cf8"/><rect x="32" y="7" width="6" height="6" fill="#818cf8"/><rect x="39" y="7" width="6" height="6" fill="#818cf8"/><rect x="46" y="7" width="6" height="6" fill="#818cf8"/><rect x="11" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="32" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="14" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="14" width="6" height="6" fill="#4f46e5"/><rect x="11" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="32" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="21" width="6" height="6" fill="#4f46e5"/><rect x="46" y="21" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="11" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="32" y="28" width="6" height="6" fill="#4f46e5"/><rect x="39" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="28" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="11" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="35" width="6" height="6" fill="#4f46e5"/><rect x="32" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="35" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="11" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="42" width="6" height="6" fill="#4f46e5"/><rect x="32" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="42" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="11" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="18" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="25" y="49" width="6" height="6" fill="#4f46e5"/><rect x="32" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="39" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/><rect x="46" y="49" width="6" height="6" fill="none" stroke="#1d2e40" stroke-width="0.6"/></svg>
           </div>
           <div class="proj-body">
             <div class="proj-top">
@@ -878,13 +904,13 @@
           </div>
         </div>
 
-        <div class="proj-card">
+        <div class="proj-card reveal" style="--reveal-delay:140ms;">
           <div class="proj-media">
             <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="14" y="24" width="36" height="18" rx="9" stroke="#22d3ee" stroke-width="2"/>
-              <circle cx="24" cy="33" r="5" stroke="#67e8f9" stroke-width="2"/>
-              <circle cx="40" cy="33" r="5" stroke="#67e8f9" stroke-width="2"/>
-              <path d="M29 33h6" stroke="#67e8f9" stroke-width="2"/>
+              <rect x="14" y="24" width="36" height="18" rx="9" stroke="#4f46e5" stroke-width="2"/>
+              <circle cx="24" cy="33" r="5" stroke="#818cf8" stroke-width="2"/>
+              <circle cx="40" cy="33" r="5" stroke="#818cf8" stroke-width="2"/>
+              <path d="M29 33h6" stroke="#818cf8" stroke-width="2"/>
               <line x1="10" y1="14" x2="54" y2="50" stroke="#0b6d84" stroke-width="2" stroke-linecap="round"/>
               <line x1="6" y1="12" x2="16" y2="18" stroke="#0b6d84" stroke-width="2" stroke-linecap="round"/>
               <line x1="48" y1="46" x2="58" y2="52" stroke="#0b6d84" stroke-width="2" stroke-linecap="round"/>
@@ -913,10 +939,10 @@
 
   <section id="skills">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow">Skills</span>
       </div>
-      <div class="stack-panel">
+      <div class="stack-panel reveal">
         <div class="stack-title-wrap">
           <div class="stack-title">My Tech Stack</div>
           <div class="stack-underline"></div>
@@ -1017,7 +1043,7 @@
           <div class="stack-grid" id="stackGridBottom">
           <div class="stack-track reverse">
           <div class="stack-tile" title="LangGraph">
-            <span class="stack-icon"><svg width="34" height="34" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 7L18 7M5.5 8L12 18M18.5 8L12 18" stroke="#22d3ee" stroke-width="1.3" fill="none"/><circle cx="5" cy="6" r="2.3" fill="#22d3ee"/><circle cx="19" cy="6" r="2.3" fill="#22d3ee"/><circle cx="12" cy="19" r="2.3" fill="#22d3ee"/></svg></span>
+            <span class="stack-icon"><svg width="34" height="34" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 7L18 7M5.5 8L12 18M18.5 8L12 18" stroke="#4f46e5" stroke-width="1.3" fill="none"/><circle cx="5" cy="6" r="2.3" fill="#4f46e5"/><circle cx="19" cy="6" r="2.3" fill="#4f46e5"/><circle cx="12" cy="19" r="2.3" fill="#4f46e5"/></svg></span>
             <span class="stack-label">LangGraph</span>
           </div>
           <div class="stack-tile" title="LangChain">
@@ -1061,7 +1087,7 @@
             <span class="stack-label">Colab</span>
           </div>
           <div class="stack-tile" aria-hidden="true" title="LangGraph">
-            <span class="stack-icon"><svg width="34" height="34" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 7L18 7M5.5 8L12 18M18.5 8L12 18" stroke="#22d3ee" stroke-width="1.3" fill="none"/><circle cx="5" cy="6" r="2.3" fill="#22d3ee"/><circle cx="19" cy="6" r="2.3" fill="#22d3ee"/><circle cx="12" cy="19" r="2.3" fill="#22d3ee"/></svg></span>
+            <span class="stack-icon"><svg width="34" height="34" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 7L18 7M5.5 8L12 18M18.5 8L12 18" stroke="#4f46e5" stroke-width="1.3" fill="none"/><circle cx="5" cy="6" r="2.3" fill="#4f46e5"/><circle cx="19" cy="6" r="2.3" fill="#4f46e5"/><circle cx="12" cy="19" r="2.3" fill="#4f46e5"/></svg></span>
             <span class="stack-label">LangGraph</span>
           </div>
           <div class="stack-tile" aria-hidden="true" title="LangChain">
@@ -1113,11 +1139,11 @@
 
   <section id="education">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow">Education</span>
         <h2>Where I'm studying.</h2>
       </div>
-      <div class="edu-card">
+      <div class="edu-card reveal">
         <div>
           <div class="school">The Pennsylvania State University</div>
           <div class="program">B.S. Computer Science, College of Engineering — Schreyer Honors Scholar</div>
@@ -1145,7 +1171,7 @@
 
   <section id="honors">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow">Honors</span>
         <h2>Recognition &amp; awards.</h2>
       </div>
@@ -1153,14 +1179,14 @@
         <div class="honors-col">
           <div class="honors-label">Honors &amp; Awards</div>
           <div class="honors-list">
-            <div class="honors-item">
+            <div class="honors-item reveal" style="--reveal-delay:0ms;">
               <div class="honors-item-top">
                 <span class="honors-title">Dean's List, Fall 2025 &amp; Spring 2026</span>
                 <span class="honors-date">May 2026</span>
               </div>
               <div class="honors-sub">Pennsylvania State University · 3.97 GPA</div>
             </div>
-            <div class="honors-item">
+            <div class="honors-item reveal" style="--reveal-delay:90ms;">
               <div class="honors-item-top">
                 <span class="honors-title">2nd Place Nationals — Virtual Reality Visualization</span>
                 <span class="honors-date">Jun 2024</span>
@@ -1175,14 +1201,14 @@
 
   <section id="assistant">
     <div class="wrap">
-      <div class="section-head">
+      <div class="section-head reveal">
         <span class="eyebrow">Ask AI</span>
-        <h2>Ask about my work.</h2>
+        <h2>ArjitGPT.</h2>
         <p class="desc">A small assistant grounded in my résumé — ask about my experience, projects, or skills.</p>
       </div>
-      <div class="chat-panel">
+      <div class="chat-panel reveal">
         <div class="chat-messages" id="chatMessages">
-          <div class="chat-msg bot"><div class="chat-bubble">Hey — I'm an assistant grounded in Arjit's résumé. Ask me about his experience, projects, or skills.</div></div>
+          <div class="chat-msg bot"><div class="chat-bubble">Hey — I'm ArjitGPT, grounded in Arjit's résumé. Ask me about his experience, projects, or skills.</div></div>
         </div>
         <div class="chat-suggestions" id="chatSuggestions">
           <button class="chip-btn" type="button">What did you build at Springer Capital?</button>
@@ -1190,16 +1216,15 @@
           <button class="chip-btn" type="button">What's your GPA?</button>
         </div>
         <form class="chat-input-row" id="chatForm">
-          <input type="text" id="chatInput" placeholder="Ask a question…" autocomplete="off" maxlength="300" />
+          <input type="text" id="chatInput" placeholder="Ask ArjitGPT anything…" autocomplete="off" maxlength="300" />
           <button class="btn primary" type="submit" id="chatSend">Send</button>
         </form>
-        <p class="chat-note" id="chatNote"></p>
       </div>
     </div>
   </section>
 
   <section id="contact">
-    <div class="wrap contact-inner">
+    <div class="wrap contact-inner reveal">
       <span class="eyebrow">Contact</span>
       <h2>Let's talk.</h2>
       <p class="contact-lede">
@@ -1338,6 +1363,29 @@
     setTimeout(cycle, 1200);
   })();
 
+  // Scroll reveal: fade + rise elements into place as they enter the
+  // viewport. Each element reveals once (unobserved after), and the global
+  // prefers-reduced-motion rule above already collapses the transition to
+  // near-zero, so this degrades to an instant appear rather than a skipped
+  // one — no separate branch needed here.
+  (function(){
+    var items = document.querySelectorAll('.reveal');
+    if(!items.length) return;
+    if(!('IntersectionObserver' in window)){
+      items.forEach(function(el){ el.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    items.forEach(function(el){ io.observe(el); });
+  })();
+
   // Mobile nav toggle
   var toggle = document.getElementById('navToggle');
   var links = document.getElementById('navLinks');
@@ -1375,116 +1423,90 @@
     });
   });
 
-  // Ask AI — grounded in Arjit's résumé, via the `sample` capability when this
-  // page is viewed as a published Artifact. Outside that viewer (a plain
-  // download, a self-hosted copy) window.claude does not exist, so the panel
-  // degrades to a note pointing at email instead of a broken chat.
-  var RESUME_CONTEXT = [
-    "You are a friendly assistant embedded on Arjit Nayak's personal portfolio website.",
-    "Answer visitor questions about Arjit using ONLY the facts below. Refer to Arjit in the",
-    "third person, keep answers to 2-4 sentences, and if something isn't covered below, say",
-    "you're not sure and suggest emailing arjitnayak2007@gmail.com. Do not invent facts.",
-    "",
-    "ABOUT: Computer Science student at Penn State and a Schreyer Honors Scholar, with interests in",
-    "artificial intelligence, machine learning, and software engineering. GPA 3.97/4.00 (Dean's List,",
-    "Fall 2025 & Spring 2026), expected to graduate May 2028. Based in Downingtown, PA. Speaks four",
-    "languages: English, Spanish, Hindi, and Oriya. Focus areas: applied machine learning, data",
-    "analytics, and software engineering. Most recently he worked as an LLM & Software Engineering",
-    "Intern at Springer Capital (Glynac.ai) — that internship has ended, he no longer works there.",
-    "Outside of class he plays basketball and volleyball, and enjoys teaching and mentoring younger",
-    "students.",
-    "",
-    "EXPERIENCE:",
-    "- LLM & Software Engineering Intern, Springer Capital (Glynac.ai), Chicago IL (Remote),",
-    "  May 2026 - Aug 2026 (former role, no longer there). Built and debugged 2 LangGraph agents",
-    "  in Python using LangChain, resolving 13 bugs, implementing automated BUY/HOLD/SELL",
-    "  recommendations using SMA and RSI indicators. Built a scikit-learn linear regression model",
-    "  (R² of 0.53) identifying employee sentiment trends across 2,191+ data points. Conducted EDA",
-    "  across 10+ features using Pandas, Matplotlib, Seaborn, NumPy. Skills: LangGraph, LangChain,",
-    "  Python, scikit-learn, Pandas, NumPy, Matplotlib, Seaborn, Data Analytics.",
-    "- Programming Teaching Assistant, Penn State, Jan 2026 - May 2026. Supports instruction in",
-    "  variables, control flow, functions, data structures for an intro programming course; leads",
-    "  office hours and small-group sessions; grades assignments with individualized feedback.",
-    "  Skills: Teaching, Debugging, Python, Mentorship, Code Review, Curriculum Support.",
-    "- Founder & Instructor, Computer Science Fundamentals (Java Programming Initiative),",
-    "  Apr 2024 - Apr 2025. Founded and taught Java fundamentals to 100+ students from elementary",
-    "  through high school; developed OOP lesson plans; gave individualized coding guidance.",
-    "  Skills: Java, Teaching, Curriculum Design, Mentorship, Public Speaking, Lesson Planning.",
-    "",
-    "PROJECTS:",
-    "- Stock Market Analysis Agent (Springer Capital, Jul-Aug 2026): 4-node LangGraph pipeline",
-    "  built with LangChain and LangGraph, processing 42 trading days of OHLCV data for AAPL and",
-    "  MSFT; engineered SMA-10, SMA-20, RSI-14 features; used embeddings for contextual financial",
-    "  analysis and information retrieval; 4-layer input/output validation. Skills: LangChain,",
-    "  LangGraph, Python, Embeddings, yfinance.",
-    "- Employee Sentiment Analysis (Springer Capital, Jun-Jul 2026): analyzed an unlabeled dataset",
-    "  of employee communications with NLP; built a rule-based sentiment pipeline in Python,",
-    "  Pandas, and RegEx classifying messages as Positive/Negative/Neutral; EDA and feature",
-    "  engineering with Matplotlib/Seaborn; fit a scikit-learn linear regression model. Skills:",
-    "  Python, NLP, Pandas, RegEx, scikit-learn, Statistical Analysis.",
-    "- BERT Sentiment Classifier (Nittany AI Alliance bootcamp, Nov-Dec 2025): fine-tuned BERT on",
-    "  25,000 labeled IMDb reviews; preprocessed/tokenized 50,000 reviews; 89.2% test accuracy on",
-    "  25,000 unseen reviews with precision/recall/F1 evaluation. Skills: Python, BERT, Hugging",
-    "  Face, PyTorch, Transfer Learning.",
-    "- Technova Customer Service Chatbot (Nittany AI Alliance bootcamp, Oct-Nov 2025): RAG chatbot",
-    "  using 20+ documents and 100+ test queries; 3-stage retrieval (chunking, embeddings, top-K",
-    "  semantic search) orchestrated with LangChain including prompt engineering; tested 50+",
-    "  customer scenarios. Skills: Python, LangChain, RAG, Embeddings, Prompt Engineering.",
-    "- MNIST Handwritten Digit Classifier (Nittany AI Alliance, AI/ML Bootcamp, Jul-Oct 2025): built",
-    "  and trained a multi-layer neural network in TensorFlow/Keras on the MNIST dataset; visualized",
-    "  predictions and model performance. Skills: Python, TensorFlow, Keras, Neural Networks, NumPy,",
-    "  Matplotlib.",
-    "- Rowing Adventures (Technology Student Association, Downingtown East HS, Jun 2024-Jun 2025):",
-    "  immersive VR rowing game built in Unity and C# for Meta Quest 2 with custom physics and",
-    "  obstacle-based gameplay; randomized levels and an Endless Mode built with a team using Git;",
-    "  original soundtracks in FL Studio and UI/3D assets in Adobe Illustrator and Blender. Skills:",
-    "  Unity, C#, Game Development, Blender, Adobe Illustrator, Project Management.",
-    "",
-    "HONORS & AWARDS: Dean's List, Fall 2025 & Spring 2026 (Penn State, 3.97 GPA). 2nd Place",
-    "Nationals, Virtual Reality Visualization event, Technology Student Association National",
-    "Conference, Jun 2024 (Downingtown East High School).",
-    "",
-    "EDUCATION DETAIL: Schreyer Honors College at Penn State, B.S. Computer Science (College of",
-    "Engineering), 3.97/4.0, expected May 2028. Activities: Nittany AI Club, South Asian Student",
-    "Association, IM Volleyball & Basketball. Relevant coursework: Advanced Data Structures and",
-    "Algorithms in C (CMPSC 222, Schreyer Honors College), Object Oriented Programming with",
-    "Web-Based Applications (CMPSC 221, Schreyer Honors College), Programming and Computation II:",
-    "Data Structures (CMPSC 132), Programming and Computation I: Fundamentals (CMPSC 131),",
-    "Calculus and Vector Analysis (MATH 230), Matrices (MATH 220).",
-    "",
-    "SKILLS: Languages: Python, Java, JavaScript, SQL. ML/Data: Pandas, NumPy, Scikit-learn,",
-    "TensorFlow, Matplotlib, Seaborn, yfinance. AI/LLM: LangGraph, LangChain, BERT, RAG, NLP,",
-    "Regular Expressions. Developer Tools: Git, VS Code, IntelliJ IDEA, Jupyter, Google",
-    "Colab. Arjit lists 66 skills on LinkedIn in total; only the most relevant are listed here.",
-    "",
-    "CONTACT: Email arjitnayak2007@gmail.com · LinkedIn linkedin.com/in/arjit-nayak-0b30942a7",
-    "· Instagram instagram.com/nayak_arjit."
-  ].join('\n');
+  // Ask AI (ArjitGPT) — a small local keyword-matched FAQ grounded in
+  // Arjit's résumé. This intentionally does NOT call the `sample`
+  // capability: that path asks the viewer for live-Claude consent on the
+  // first message and can leave the chat stuck on "Thinking…" if that
+  // prompt is missed or slow. A deterministic local matcher answers
+  // instantly everywhere the page is viewed, with nothing that can hang.
+  //
+  // The whole thing runs in its OWN try/catch'd IIFE, deliberately isolated
+  // from the rest of this file's script: if some unrelated feature above
+  // (nav, canvas, accordion) ever throws, that must not be able to stop
+  // this chat's event listeners from being attached — which is exactly the
+  // class of bug that makes a working Send button look silently broken.
+  (function(){
+  try{
 
   var chatMessages = document.getElementById('chatMessages');
   var chatForm = document.getElementById('chatForm');
   var chatInput = document.getElementById('chatInput');
   var chatSend = document.getElementById('chatSend');
-  var chatNote = document.getElementById('chatNote');
   var chatSuggestions = document.getElementById('chatSuggestions');
+  if(!chatMessages || !chatForm || !chatInput || !chatSend || !chatSuggestions) return;
 
-  var UNAVAILABLE_MSG = "The live assistant isn't available in this view — email me directly at arjitnayak2007@gmail.com in the meantime.";
-  var sampleFn = null, sampleChecked = false, sendBusy = false;
+  var NOT_SURE_MSG = "I'm not totally sure about that one — you can email Arjit directly at arjitnayak2007@gmail.com and he'll get back to you.";
+  var sendBusy = false;
 
-  function ensureSample(){
-    if(sampleChecked) return Promise.resolve(sampleFn);
-    sampleChecked = true;
-    return (async function(){
-      try{
-        if(window.claude && window.claude.use){
-          sampleFn = await window.claude.use('sample');
-        }
-      }catch(err){ sampleFn = null; }
-      if(!sampleFn){ chatNote.textContent = UNAVAILABLE_MSG; }
-      return sampleFn;
-    })();
+  // Local fallback "brain": a small keyword-matched FAQ over Arjit's résumé —
+  // no server, no API key, so it answers the same in the Artifact viewer, a
+  // plain download, or GitHub Pages.
+  var LOCAL_ANSWERS = [
+    { keywords: ["hi", "hello", "hey", "sup", "yo"],
+      answer: "Hey! Ask me about Arjit's experience, projects, education, or skills — happy to help." },
+    { keywords: ["who is arjit", "about arjit", "yourself", "background", "who are you", "introduce"],
+      answer: "Arjit is a Computer Science student at Penn State's Schreyer Honors College (3.97 GPA), focused on applied machine learning, data analytics, and software engineering. He most recently worked as an LLM & Software Engineering Intern at Springer Capital (Glynac.ai), and outside of class he plays basketball and volleyball and enjoys teaching. He's expected to graduate in May 2028." },
+    { keywords: ["springer", "glynac", "internship", "intern"],
+      answer: "At Springer Capital (Glynac.ai), Arjit built and debugged two LangGraph agents in Python (with LangChain) that generate automated BUY/HOLD/SELL calls from SMA and RSI indicators. He also built a scikit-learn linear regression model (R² of 0.53) to identify employee sentiment trends across 2,191+ data points, using Pandas, Matplotlib, Seaborn, and NumPy." },
+    { keywords: ["stock market", "stock agent", "trading agent", "ohlcv", "sma", "rsi", "aapl", "msft", "trading"],
+      answer: "The Stock Market Analysis Agent is a 4-node LangGraph pipeline (LangChain + LangGraph) that processes 42 trading days of OHLCV data for AAPL and MSFT. It engineers SMA-10, SMA-20, and RSI-14 features, uses embeddings for contextual financial analysis, and has 4-layer input/output validation." },
+    { keywords: ["employee sentiment", "workplace sentiment"],
+      answer: "For Employee Sentiment Analysis, Arjit analyzed an unlabeled dataset of employee communications with NLP, building a rule-based pipeline in Python, Pandas, and RegEx to classify messages as Positive, Negative, or Neutral, then fit a scikit-learn linear regression model to surface sentiment trends." },
+    { keywords: ["bert", "imdb", "transformer", "hugging face", "pytorch"],
+      answer: "Arjit fine-tuned a pre-trained BERT model (Python, Hugging Face Transformers, PyTorch) on 25,000 labeled IMDb reviews for binary sentiment classification. It reached 89.2% test accuracy on 25,000 unseen reviews, evaluated with precision, recall, and F1-score." },
+    { keywords: ["technova", "chatbot", "rag", "customer service", "retrieval"],
+      answer: "The Technova Customer Service Chatbot is a RAG-based assistant built with Python and LangChain that answers questions using 20+ company documents, through a 3-stage retrieval pipeline (chunking, embeddings, top-K semantic search). It was tested against 100+ queries and 50+ customer scenarios." },
+    { keywords: ["mnist", "digit", "handwritten", "keras"],
+      answer: "For the MNIST Handwritten Digit Classifier, Arjit built and trained a multi-layer neural network in TensorFlow/Keras to classify handwritten digits 0–9, then visualized predictions to evaluate model performance." },
+    { keywords: ["rowing", "vr", "unity", "meta quest", "tsa", "virtual reality"],
+      answer: "Rowing Adventures is an immersive VR rowing game Arjit built in Unity and C# for the Meta Quest 2, with custom physics, obstacle-based gameplay, and an Endless Mode built with a team using Git. It placed 2nd Nationally in the Virtual Reality Visualization event at the TSA National Conference." },
+    { keywords: ["teaching assistant", "teach", "java initiative", "mentor", "ta "],
+      answer: "Arjit is a Programming Teaching Assistant at Penn State, running office hours and small-group sessions for an intro programming course. He also founded the Java Programming Initiative, teaching Java fundamentals to 100+ students from elementary through high school." },
+    { keywords: ["gpa", "grade", "education", "school", "university", "penn state", "major", "degree", "schreyer", "study", "studying"],
+      answer: "Arjit is pursuing a B.S. in Computer Science at Penn State's Schreyer Honors College, with a 3.97/4.00 GPA (Dean's List, Fall 2025 & Spring 2026), expected to graduate in May 2028." },
+    { keywords: ["honors", "awards", "dean's list", "deans list", "nationals", "competition"],
+      answer: "Arjit made Dean's List at Penn State for Fall 2025 and Spring 2026 (3.97 GPA), and placed 2nd Nationally in the Virtual Reality Visualization event at the Technology Student Association's National Conference in June 2024." },
+    { keywords: ["skills", "tech stack", "technologies", "programming", "tools", "stack"],
+      answer: "Arjit's core stack is Python, Java, JavaScript, and SQL, plus Pandas, NumPy, scikit-learn, TensorFlow, Matplotlib, and Seaborn for ML/data work, and LangGraph, LangChain, BERT, RAG, and NLP for LLM/AI projects — day to day in Git, VS Code, IntelliJ IDEA, and Jupyter/Google Colab." },
+    { keywords: ["speak", "spoken language", "hindi", "oriya", "spanish", "fluent", "languages does"],
+      answer: "Arjit speaks four languages: English, Spanish, Hindi, and Oriya." },
+    { keywords: ["contact", "email", "reach", "linkedin", "instagram", "hire him", "get in touch"],
+      answer: "You can reach Arjit directly at arjitnayak2007@gmail.com, or find him on LinkedIn (linkedin.com/in/arjit-nayak-0b30942a7) and Instagram (@nayak_arjit)." },
+    { keywords: ["resume", "résumé", "cv"],
+      answer: "You can view Arjit's résumé with the Resume button in the nav bar or hero section — it opens right in a new tab." }
+  ];
+
+  function normalizeText(s){
+    return s.toLowerCase().replace(/[^a-z0-9\s'-]/g, ' ').replace(/\s+/g, ' ').trim();
   }
-  ensureSample();
+  function localAnswer(question){
+    var qNorm = normalizeText(question);
+    var qWords = qNorm.split(' ');
+    var best = null, bestScore = 0;
+    LOCAL_ANSWERS.forEach(function(entry){
+      var score = 0;
+      entry.keywords.forEach(function(k){
+        var kNorm = normalizeText(k);
+        if(kNorm.indexOf(' ') === -1){
+          if(qWords.indexOf(kNorm) !== -1) score++;
+        } else if(qNorm.indexOf(kNorm) !== -1){
+          score += 2;
+        }
+      });
+      if(score > bestScore){ bestScore = score; best = entry; }
+    });
+    return best ? best.answer : NOT_SURE_MSG;
+  }
 
   function addMessage(role, text){
     var row = document.createElement('div');
@@ -1498,45 +1520,37 @@
     return bubble;
   }
 
-  async function sendQuestion(question){
+  function sendQuestion(question){
     if(!question || sendBusy) return;
     sendBusy = true; chatSend.disabled = true; chatInput.disabled = true;
     addMessage('user', question);
     chatInput.value = '';
     var botBubble = addMessage('bot', 'Thinking…');
-    try{
-      var fn = await ensureSample();
-      if(!fn){
-        botBubble.textContent = UNAVAILABLE_MSG;
-      } else {
-        var result = await fn(RESUME_CONTEXT + '\n\nVisitor question: ' + question, {
-          modelTier: 'quick',
-          cache: false,
-          onText: function(u){ botBubble.textContent = u.text; chatMessages.scrollTop = chatMessages.scrollHeight; }
-        });
-        botBubble.textContent = result.text;
-      }
-    }catch(err){
-      var code = err && err.code;
-      if(code === 'rate_limited'){ botBubble.textContent = "I'm a little busy — try again in a few seconds."; }
-      else if(code === 'not_granted' || code === 'capability_disabled' || code === 'capability_removed' || code === 'unavailable'){ botBubble.textContent = UNAVAILABLE_MSG; }
-      else if(code === 'declined'){ botBubble.textContent = 'No worries — ask me something else, or email arjitnayak2007@gmail.com.'; }
-      else { botBubble.textContent = 'Something went wrong — try again, or email arjitnayak2007@gmail.com.'; }
-    } finally {
+    // Brief pause purely for feel (so the reply doesn't feel like a static
+    // page swap) — the answer itself is computed synchronously above, so
+    // there's nothing to await and nothing that can hang.
+    setTimeout(function(){
+      botBubble.textContent = localAnswer(question);
       sendBusy = false; chatSend.disabled = false; chatInput.disabled = false;
       chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+    }, 450);
   }
 
-  if(chatForm){
-    chatForm.addEventListener('submit', function(e){
-      e.preventDefault();
-      sendQuestion(chatInput.value.trim());
-    });
-    chatSuggestions.querySelectorAll('.chip-btn').forEach(function(chip){
-      chip.addEventListener('click', function(){ sendQuestion(chip.textContent); });
-    });
+  chatForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    sendQuestion(chatInput.value.trim());
+  });
+  chatSuggestions.querySelectorAll('.chip-btn').forEach(function(chip){
+    chip.addEventListener('click', function(){ sendQuestion(chip.textContent); });
+  });
+
+  }catch(err){
+    // Swallow: a chat that fails to wire up should never take the rest of
+    // the page's scripts down with it (and vice versa — see the isolation
+    // note above).
+    if(window.console && console.error) console.error('ArjitGPT chat init failed:', err);
   }
+  })();
 
   // Ambient network canvas: a slowly drifting node graph with data "pulses"
   // traveling along its edges — an AI / data motif behind the hero name,
@@ -1615,7 +1629,7 @@
         if(dist < LINK_DIST){
           ctx.beginPath();
           ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
-          ctx.strokeStyle = 'rgba(34,211,238,' + (0.24 * (1 - dist/LINK_DIST)).toFixed(3) + ')';
+          ctx.strokeStyle = 'rgba(79,70,229,' + (0.30 * (1 - dist/LINK_DIST)).toFixed(3) + ')';
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -1626,7 +1640,7 @@
       var n = netNodes[i];
       ctx.beginPath();
       ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(103,232,249,0.55)';
+      ctx.fillStyle = 'rgba(67,56,202,0.65)';
       ctx.fill();
     }
 
@@ -1640,8 +1654,8 @@
         var y = a.y + (b.y-a.y)*p.t;
         ctx.beginPath();
         ctx.arc(x, y, 2, 0, Math.PI*2);
-        ctx.fillStyle = 'rgba(238,244,251,0.9)';
-        ctx.shadowColor = 'rgba(103,232,249,0.85)';
+        ctx.fillStyle = 'rgba(6,182,212,0.95)';
+        ctx.shadowColor = 'rgba(6,182,212,0.85)';
         ctx.shadowBlur = 6;
         ctx.fill();
         ctx.shadowBlur = 0;
@@ -1663,22 +1677,11 @@
   }
 
   // Tech stack strips: a pure CSS transform animation drives the continuous,
-  // seamless auto-scroll (see .stack-track / @keyframes in the stylesheet).
-  // The row itself stays a real horizontally-scrollable element (so a
-  // trackpad two-finger swipe / mouse wheel still scrolls it manually), just
-  // with its native scrollbar hidden. Touch/wheel toggle a class that maps to
-  // animation-play-state:paused so manual scrolling and the animation don't
-  // fight each other; a plain :hover rule handles the mouse-hover case.
-  document.querySelectorAll('.stack-grid').forEach(function(grid){
-    var resumeTimer = null;
-    function pause(){ grid.classList.add('paused'); }
-    function resumeSoon(delay){
-      clearTimeout(resumeTimer);
-      resumeTimer = setTimeout(function(){ grid.classList.remove('paused'); }, delay || 200);
-    }
-    grid.addEventListener('touchstart', pause, {passive:true});
-    grid.addEventListener('touchend', function(){ resumeSoon(1200); }, {passive:true});
-    grid.addEventListener('wheel', function(){ pause(); resumeSoon(1200); }, {passive:true});
-  });
+  // seamless auto-scroll (see .stack-track / @keyframes in the stylesheet) —
+  // truly infinite, with no JS controlling it at all (a previous version
+  // paused it on wheel/touch and resumed it after a delay; that JS timer
+  // could end up stuck, which is what looked like the strip "going blank"
+  // and taking a while to come back). The only interaction left is a plain
+  // CSS :hover-to-pause, which reverses itself instantly.
 })();
 </script>
